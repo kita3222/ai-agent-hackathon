@@ -15,7 +15,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+          <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
           {subtitle && (
             <p className="text-sm text-muted-foreground">{subtitle}</p>
           )}
