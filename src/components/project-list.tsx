@@ -1,27 +1,34 @@
-"use client"
-import { Book, Briefcase, GraduationCap, Rocket } from "lucide-react"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+"use client";
+import React from "react";
+import {
+  ArrowRightIcon,
+  Book,
+  Briefcase,
+  GraduationCap,
+  Rocket,
+} from "lucide-react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
-export type Goal = {
-  id: string
-  title: string
-  description: string
-  type: "personal" | "work" | "learning" | "health"
-  status: "not-started" | "in-progress" | "completed" | "struggling"
+export type Project = {
+  id: string;
+  title: string;
+  description: string;
+  type: "personal" | "work" | "learning" | "health";
+  status: "not-started" | "in-progress" | "completed" | "struggling";
   target: {
-    value: number
-    unit: string
-    date: string
-  }
-  progress: number
-  icon: "book" | "briefcase" | "graduation-cap" | "rocket"
-}
+    value: number;
+    unit: string;
+    date: string;
+  };
+  progress: number;
+  icon: "book" | "briefcase" | "graduation-cap" | "rocket" | JSX.Element;
+};
 
-const data: Goal[] = [
+const data: Project[] = [
   {
     id: "GOAL-1",
     title: "論文を書き上げる",
@@ -64,53 +71,65 @@ const data: Goal[] = [
     progress: 0,
     icon: "briefcase",
   },
-]
+];
 
-function GoalIcon({ type }: { type: Goal["icon"] }) {
-  switch (type) {
+function ProjectIcon({ icon }: { icon: Project["icon"] }) {
+  if (React.isValidElement(icon)) {
+    return icon;
+  }
+  switch (icon) {
     case "book":
-      return <Book className="h-4 w-4" />
+      return <Book className="h-4 w-4" />;
     case "briefcase":
-      return <Briefcase className="h-4 w-4" />
+      return <Briefcase className="h-4 w-4" />;
     case "graduation-cap":
-      return <GraduationCap className="h-4 w-4" />
+      return <GraduationCap className="h-4 w-4" />;
     case "rocket":
-      return <Rocket className="h-4 w-4" />
+      return <Rocket className="h-4 w-4" />;
+    default:
+      return null;
   }
 }
 
-function StatusBadge({ status }: { status: Goal["status"] }) {
+function StatusBadge({ status }: { status: Project["status"] }) {
   const variants = {
     "not-started": "bg-slate-100 text-slate-700",
     "in-progress": "bg-blue-50 text-blue-700",
     completed: "bg-green-50 text-green-700",
     struggling: "bg-red-50 text-red-700",
-  }
+  };
 
   const labels = {
     "not-started": "未着手",
     "in-progress": "進行中",
     completed: "完了",
     struggling: "苦戦中",
-  }
+  };
 
   return (
-    <Badge variant="secondary" className={`${variants[status]} border-0 text-xs`}>
+    <Badge
+      variant="secondary"
+      className={`${variants[status]} border-0 text-xs`}
+    >
       {labels[status]}
     </Badge>
-  )
+  );
 }
 
-export function GoalList() {
+export function ProjectList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">あなたのゴール</h2>
-          <p className="text-sm text-muted-foreground">一歩ずつ前進しましょう。小さな進捗も大切です。</p>
+          <h2 className="text-xl font-semibold tracking-tight">
+            あなたのプロジェクト
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            一歩ずつ前進しましょう。小さな進捗も大切です。
+          </p>
         </div>
         <Button size="sm" asChild>
-          <Link href="/goals/new">新しいゴールを設定</Link>
+          <Link href="/projects/new">新しいプロジェクトを設定</Link>
         </Button>
       </div>
 
@@ -120,13 +139,15 @@ export function GoalList() {
             <CardContent className="p-4">
               <div className="flex justify-between items-start mb-3">
                 <div className="p-1.5 bg-slate-100 rounded-md dark:bg-slate-800">
-                  <GoalIcon type={goal.icon} />
+                  <ProjectIcon icon={goal.icon} />
                 </div>
                 <StatusBadge status={goal.status} />
               </div>
 
               <h3 className="font-semibold text-base mb-0.5">{goal.title}</h3>
-              <p className="text-xs text-muted-foreground mb-3">{goal.description}</p>
+              <p className="text-xs text-muted-foreground mb-3">
+                {goal.description}
+              </p>
 
               <div className="space-y-2.5">
                 <div className="space-y-1">
@@ -143,7 +164,9 @@ export function GoalList() {
                       {goal.target.value}
                       {goal.target.unit}
                     </span>
-                    <span className="text-xs text-muted-foreground block">目標</span>
+                    <span className="text-xs text-muted-foreground block">
+                      目標
+                    </span>
                   </div>
                   <div className="flex items-center text-xs text-muted-foreground">
                     <Book className="h-3 w-3 mr-1" />
@@ -158,14 +181,19 @@ export function GoalList() {
               </div>
             </CardContent>
             <CardFooter className="p-4 pt-0">
-              <Button variant="ghost" size="sm" className="w-full h-8 text-xs" asChild>
-                <Link href={`/goals/${goal.id}`}>詳細・タスク分解</Link>
+              <Button
+                variant="default"
+                size="sm"
+                className="w-full"
+                asChild
+                endIcon={<ArrowRightIcon />}
+              >
+                <Link href={`/projects/${goal.id}`}>詳細</Link>
               </Button>
             </CardFooter>
           </Card>
         ))}
       </div>
     </div>
-  )
+  );
 }
-

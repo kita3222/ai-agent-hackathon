@@ -2,14 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { format } from "date-fns"
 
-type GoalHeaderProps = {
+type ProjectHeaderProps = {
   title: string
   description: string
   deadline: Date
   progress: number
 }
 
-export function GoalHeader({ title, description, deadline, progress }: GoalHeaderProps) {
+export function ProjectHeader({ title, description, deadline, progress }: ProjectHeaderProps) {
   return (
     <>
       <h1 className="text-3xl font-bold mb-6">{title}</h1>

@@ -21,32 +21,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ja" suppressHydrationWarning>
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-screen bg-white dark:bg-gray-900 font-sans antialiased",
           fontSans.variable
         )}
       >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
-          enableSystem
           disableTransitionOnChange
         >
           <div className="relative min-h-screen flex flex-col">
-            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 bg-opacity-95 backdrop-blur supports-[backdrop-filter]:bg-inherit">
               <div className="container flex h-14 items-center">
                 <div className="mr-4 hidden md:flex">
                   <a className="mr-6 flex items-center space-x-2" href="/">
-                    <span className="hidden font-bold sm:inline-block">
+                    <span className="hidden font-bold sm:inline-block ">
                       TaskMaster
                     </span>
                   </a>
                 </div>
                 <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
                   <div className="w-full flex-1 md:w-auto md:flex-none">
-                    <button className="inline-flex items-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3 py-2 w-full justify-between md:w-auto">
+                    <button className="inline-flex items-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-accent-foreground dark:hover:text-accent-foreground h-8 px-3 py-2 w-full justify-between md:w-auto">
                       <span className="hidden sm:inline-flex">検索...</span>
                       <span className="inline-flex sm:hidden">検索</span>
                       <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">

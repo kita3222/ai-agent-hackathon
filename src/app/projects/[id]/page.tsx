@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { addDays } from "date-fns";
-import { GoalHeader } from "@/components/goal-header";
+import { ProjectHeader } from "@/components/project-header";
 import { GanttChart } from "@/components/gantt-chart";
 import { TaskUpdate } from "@/components/task-update";
 import { MilestoneProgress } from "@/components/milestone-progress";
@@ -26,7 +26,7 @@ type Milestone = {
   color: string;
 };
 
-type Goal = {
+type Project = {
   id: string;
   title: string;
   description: string;
@@ -43,14 +43,14 @@ const COLORS = [
   "bg-indigo-400",
 ];
 
-export default function GoalDetailPage() {
+export default function ProjectDetailPage() {
   const params = useParams();
-  const [goal, setGoal] = useState<Goal | null>(null);
+  const [goal, setProject] = useState<Project | null>(null);
 
   useEffect(() => {
     // In a real application, you would fetch the goal details from your backend here
     // For now, we'll use mock data
-    const mockGoal: Goal = {
+    const mockProject: Project = {
       id: params.id as string,
       title: "3ヶ月で修士論文を完成させる",
       description:
@@ -143,13 +143,13 @@ export default function GoalDetailPage() {
       ],
     };
 
-    setGoal(mockGoal);
+    setProject(mockProject);
   }, [params.id]);
 
   const toggleTaskCompletion = (taskId: string) => {
     if (!goal) return;
 
-    setGoal({
+    setProject({
       ...goal,
       milestones: goal.milestones.map((milestone) => ({
         ...milestone,
@@ -185,7 +185,7 @@ export default function GoalDetailPage() {
 
   return (
     <div className="container mx-auto py-6">
-      <GoalHeader
+      <ProjectHeader
         title={goal.title}
         description={goal.description}
         deadline={goal.deadline}

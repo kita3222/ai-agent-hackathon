@@ -9,8 +9,8 @@ export default function SchedulePage({
 
   return (
     <div className="container mx-auto py-6">
-      <h1 className="text-3xl font-bold mb-6">スケジュール提案</h1>
-      <p className="text-lg mb-6">
+      <h1 className="text-2xl font-bold mb-2">スケジュール提案</h1>
+      <p className="text-md mb-6 text-gray-500">
         目標達成に向けた具体的なスケジュールを提案します。
         マイルストーンとタスクの予定日を確認し、必要に応じて調整してください。
       </p>

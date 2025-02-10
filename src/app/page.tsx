@@ -1,4 +1,4 @@
-import { GoalList } from "@/components/goal-list";
+import { ProjectList } from "@/components/project-list";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <div className="space-y-6">
-      <GoalList />
+      <ProjectList />
     </div>
   );
 }

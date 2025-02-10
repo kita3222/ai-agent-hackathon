@@ -1,22 +1,9 @@
+import React, { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import {
-  eachDayOfInterval,
-  eachWeekOfInterval,
-  format,
-  isSameDay,
-  startOfMonth,
-  endOfMonth,
-  isToday,
-} from "date-fns";
+import { format, startOfDay, endOfDay, add } from "date-fns";
 import { ja } from "date-fns/locale";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
-type Task = {
+export type Task = {
   id: string;
   title: string;
   startDate: Date;
@@ -24,7 +11,7 @@ type Task = {
   completed: boolean;
 };
 
-type Milestone = {
+export type Milestone = {
   id: string;
   title: string;
   startDate: Date;
@@ -33,13 +20,14 @@ type Milestone = {
   color: string;
 };
 
-type GanttChartProps = {
-  milestones: Milestone[];
+export type GanttChartProps = {
   startDate: Date;
   endDate: Date;
+  milestones: Milestone[];
+  className?: string;
 };
 
-const COLORS = [
+export const COLORS = [
   "bg-blue-400",
   "bg-green-400",
   "bg-yellow-400",
@@ -49,157 +37,373 @@ const COLORS = [
 ];
 
 export function GanttChart({
-  milestones,
   startDate,
   endDate,
+  milestones,
+  className,
 }: GanttChartProps) {
-  const dateRange = eachDayOfInterval({
-    start: startOfMonth(startDate),
-    end: endOfMonth(endDate),
+  const DAY_WIDTH = 40;
+  const SCROLL_THRESHOLD = 200;
+  const DAYS_TO_ADD = 30;
+  const INITIAL_PADDING_DAYS = 30;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // 初期の表示範囲を設定（前後に余白を追加）
+  const [visibleStartDate] = useState(() => {
+    const earliestDate = milestones.reduce((earliest, milestone) => {
+      const milestoneEarliest = milestone.tasks.reduce(
+        (taskEarliest, task) =>
+          task.startDate < taskEarliest ? task.startDate : taskEarliest,
+        milestone.startDate
+      );
+      return milestoneEarliest < earliest ? milestoneEarliest : earliest;
+    }, startDate);
+    return add(earliestDate, { days: -INITIAL_PADDING_DAYS });
   });
-  const weekRange = eachWeekOfInterval({
-    start: startOfMonth(startDate),
-    end: endOfMonth(endDate),
+
+  const [visibleEndDate] = useState(() => {
+    const latestDate = milestones.reduce((latest, milestone) => {
+      const milestoneLatest = milestone.tasks.reduce(
+        (taskLatest, task) =>
+          task.endDate > taskLatest ? task.endDate : taskLatest,
+        milestone.endDate
+      );
+      return milestoneLatest > latest ? milestoneLatest : latest;
+    }, endDate);
+    return add(latestDate, { days: INITIAL_PADDING_DAYS });
   });
 
-  const calculatePosition = (taskStartDate: Date, taskEndDate: Date) => {
-    const totalDays = dateRange.length;
-    const startDayIndex = dateRange.findIndex((date) =>
-      isSameDay(date, taskStartDate)
-    );
-    const endDayIndex = dateRange.findIndex((date) =>
-      isSameDay(date, taskEndDate)
-    );
+  // 表示用の日付配列を生成
+  const dateHeaders = useMemo(() => {
+    const dates: Date[] = [];
+    let current = startOfDay(visibleStartDate);
+    const end = endOfDay(visibleEndDate);
 
-    const left = (startDayIndex / totalDays) * 100;
-    const width = ((endDayIndex - startDayIndex + 1) / totalDays) * 100;
+    while (current <= end) {
+      dates.push(current);
+      current = add(current, { days: 1 });
+    }
 
+    return dates;
+  }, [visibleStartDate, visibleEndDate]);
+
+  const getPositionAndWidth = (start: Date, end: Date) => {
+    const startDiff = Math.round(
+      (start.getTime() - visibleStartDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    const duration =
+      Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     return {
-      left: `${left}%`,
-      width: `${width}%`,
+      left: `${startDiff * DAY_WIDTH}px`,
+      width: `${Math.max(duration * DAY_WIDTH - 2, DAY_WIDTH)}px`,
     };
   };
 
   return (
-    <div className="border rounded-lg p-4 overflow-x-auto bg-white">
-      <div className="min-w-[800px]">
-        {/* Month Header */}
-        <div className="flex border-b mb-2">
-          <div className="w-1/4" />
-          <div className="w-3/4 flex">
-            {dateRange.map((date, index) => (
-              <div
-                key={date.getTime()}
-                className={cn(
-                  "flex-1 text-center text-xs p-1 font-medium",
-                  index === 0 || date.getDate() === 1 ? "border-l" : ""
-                )}
-              >
-                {(index === 0 || date.getDate() === 1) && (
-                  <div className="mb-1">
-                    {format(date, "M月", { locale: ja })}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+    <div className={`relative mb-8 mt-8 ${className || ""}`}>
+      <div className="flex h-full">
+        {/* 左側の固定カラム */}
+        <div
+          className={cn(
+            "border-r border-gray-200 bg-white dark:bg-gray-800 transition-all duration-300 sticky left-0 z-20 flex flex-col",
+            isSidebarOpen ? "w-1/3" : "w-12"
+          )}
+        >
+          {/* サイドバーヘッダー */}
+          <div className="h-[96px] bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 flex items-center justify-center" />
 
-        {/* Week Header */}
-        <div className="flex border-b mb-2">
-          <div className="w-1/4" />
-          <div className="w-3/4 flex">
-            {weekRange.map((week) => (
-              <div
-                key={week.getTime()}
-                className="flex-1 text-center text-xs p-1 font-medium border-l"
-              >
-                第{format(week, "w")}週
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Day Header */}
-        <div className="flex border-b mb-4">
-          <div className="w-1/4 p-2 font-medium">マイルストーン / タスク</div>
-          <div className="w-3/4 flex">
-            {dateRange.map((date) => (
-              <div
-                key={date.getTime()}
-                className={cn(
-                  "flex-1 text-center text-xs p-1",
-                  isToday(date) && "bg-blue-100",
-                  date.getDay() === 0 && "text-red-500",
-                  date.getDay() === 6 && "text-blue-500"
-                )}
-              >
-                {format(date, "d")}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Gantt Chart Body */}
-        <div className="space-y-4">
-          {milestones.map((milestone, milestoneIndex) => (
-            <div key={milestone.id} className="mb-2">
-              <div className="flex items-center bg-gray-100 rounded-t-md">
-                <div className="w-1/4 p-2">
-                  <h4 className="font-semibold text-sm">{milestone.title}</h4>
-                </div>
-                <div className="w-3/4 relative h-8">
+          {/* マイルストーンとタスクの一覧 */}
+          <div>
+            {milestones.map((milestone, milestoneIndex) => (
+              <div key={milestone.id}>
+                {/* マイルストーンの行 */}
+                <div className="h-[48px] px-4 bg-gray-50 border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 flex items-center">
                   <div
                     className={cn(
-                      "absolute h-6 rounded-full top-1",
-                      COLORS[milestoneIndex % COLORS.length],
-                      "opacity-90 hover:opacity-100 transition-opacity"
+                      "flex items-center w-full",
+                      isSidebarOpen ? "justify-between" : "justify-center"
                     )}
-                    style={calculatePosition(
-                      milestone.startDate,
-                      milestone.endDate
+                  >
+                    {isSidebarOpen ? (
+                      <>
+                        <div className="flex items-center space-x-3 min-w-0">
+                          <div
+                            className={`w-2 h-2 rounded-full ${milestone.color} flex-shrink-0`}
+                          />
+                          <span className="text-sm font-medium truncate">
+                            {milestone.title}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2 flex-shrink-0">
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {milestone.startDate
+                              ? format(milestone.startDate, "MM/dd")
+                              : "-"}
+                            {" - "}
+                            {milestone.endDate
+                              ? format(milestone.endDate, "MM/dd")
+                              : "-"}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div
+                        className={`w-2 h-2 rounded-full ${milestone.color}`}
+                      />
                     )}
-                  />
+                  </div>
+                </div>
+                {/* タスクの行 */}
+                {milestone.tasks.map((task, taskIndex) => (
+                  <div
+                    key={task.id}
+                    className="h-[48px] px-4 border-b flex items-center bg-white dark:bg-gray-600"
+                  >
+                    <div
+                      className={cn(
+                        "flex items-center w-full",
+                        isSidebarOpen ? "justify-between" : "justify-center"
+                      )}
+                    >
+                      {isSidebarOpen ? (
+                        <>
+                          <div className="flex items-center space-x-3 min-w-0">
+                            <div
+                              className={`w-2 h-2 rounded-full ${milestone.color} flex-shrink-0`}
+                            />
+                            <span className="text-sm truncate">
+                              {task.title}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2 flex-shrink-0">
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              {task.startDate
+                                ? format(task.startDate, "MM/dd")
+                                : "-"}
+                              {" - "}
+                              {task.endDate
+                                ? format(task.endDate, "MM/dd")
+                                : "-"}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div
+                          className={`w-2 h-2 rounded-full ${milestone.color}`}
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 右側のガントチャート */}
+        <div className="flex-1 overflow-hidden">
+          <div className="overflow-x-auto">
+            <div
+              style={{
+                width: `${dateHeaders.length * DAY_WIDTH}px`,
+                minWidth: "100%",
+              }}
+            >
+              {/* カレンダーヘッダー */}
+              <div className="border bg-gray-50 dark:bg-gray-800 sticky top-0 z-10 h-[96px] flex flex-col">
+                {/* 年表示 */}
+                <div
+                  className="grid h-[32px] border-b"
+                  style={{
+                    gridTemplateColumns: `repeat(${dateHeaders.length}, ${DAY_WIDTH}px)`,
+                  }}
+                >
+                  {dateHeaders.map((date, i) =>
+                    (date.getMonth() === 0 && date.getDate() === 1) ||
+                    i === 0 ? (
+                      <div
+                        key={i}
+                        className="px-1 py-2 text-sm font-medium text-center border-r"
+                        style={{
+                          gridColumn: `span ${
+                            new Date(date.getFullYear() + 1, 0, 1).getTime() -
+                              date.getTime() >
+                            endOfDay(
+                              dateHeaders[dateHeaders.length - 1]
+                            ).getTime() -
+                              date.getTime()
+                              ? Math.ceil(
+                                  (endOfDay(
+                                    dateHeaders[dateHeaders.length - 1]
+                                  ).getTime() -
+                                    date.getTime()) /
+                                    (1000 * 60 * 60 * 24)
+                                )
+                              : Math.ceil(
+                                  (new Date(
+                                    date.getFullYear() + 1,
+                                    0,
+                                    1
+                                  ).getTime() -
+                                    date.getTime()) /
+                                    (1000 * 60 * 60 * 24)
+                                )
+                          }`,
+                        }}
+                      >
+                        {format(date, "yyyy年", { locale: ja })}
+                      </div>
+                    ) : null
+                  )}
+                </div>
+
+                {/* 月表示 */}
+                <div
+                  className="grid h-[32px]"
+                  style={{
+                    gridTemplateColumns: `repeat(${dateHeaders.length}, ${DAY_WIDTH}px)`,
+                  }}
+                >
+                  {dateHeaders.map((date, i) => {
+                    // 月の最初の日、または表示範囲の最初の日の場合のみ月を表示
+                    const isFirstDayOfMonth = date.getDate() === 1;
+                    const isFirstDay = i === 0;
+                    const shouldDisplayMonth = isFirstDayOfMonth || isFirstDay;
+
+                    if (shouldDisplayMonth) {
+                      // その月の残りの日数を計算
+                      const daysInMonth = new Date(
+                        date.getFullYear(),
+                        date.getMonth() + 1,
+                        0
+                      ).getDate();
+                      const remainingDays = daysInMonth - date.getDate() + 1;
+                      // 表示可能な日数（dateHeadersの残り）を計算
+                      const availableDays = dateHeaders.length - i;
+                      // 実際に表示する日数（月の残り日数と表示可能な日数の小さい方）
+                      const daysToSpan = Math.min(remainingDays, availableDays);
+
+                      return (
+                        <div
+                          key={i}
+                          className="px-1 flex items-center justify-center text-sm font-medium text-center border-r h-full"
+                          style={{
+                            gridColumn: `span ${daysToSpan}`,
+                          }}
+                        >
+                          {format(date, "M月", { locale: ja })}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+
+                {/* 日付表示 */}
+                <div
+                  className="grid h-[32px]"
+                  style={{
+                    gridTemplateColumns: `repeat(${dateHeaders.length}, ${DAY_WIDTH}px)`,
+                  }}
+                >
+                  {dateHeaders.map((date, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "px-1 flex items-center justify-center text-sm text-center border-r last:border-r-0 h-full",
+                        date.getDay() === 0
+                          ? "text-red-500"
+                          : date.getDay() === 6
+                          ? "text-blue-500"
+                          : ""
+                      )}
+                    >
+                      {format(date, "d", { locale: ja })}
+                    </div>
+                  ))}
                 </div>
               </div>
-              {milestone.tasks.map((task) => (
+
+              {/* ガントチャートのグリッドとバー */}
+              <div className="relative border border-gray-200 dark:border-gray-700 border-y-0">
+                {/* グリッド線 */}
                 <div
-                  key={task.id}
-                  className="flex items-center bg-gray-50 rounded-b-md"
+                  className="absolute inset-0 grid pointer-events-none"
+                  style={{
+                    gridTemplateColumns: `repeat(${dateHeaders.length}, ${DAY_WIDTH}px)`,
+                    height: `${milestones.reduce(
+                      (total, milestone) =>
+                        total + 48 + milestone.tasks.length * 48,
+                      0
+                    )}px`,
+                  }}
                 >
-                  <div className="w-1/4 p-2 pl-8">
-                    <p className="text-xs">{task.title}</p>
-                  </div>
-                  <div className="w-3/4 relative h-6">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div
-                            className={cn(
-                              "absolute h-4 rounded-full top-1 cursor-pointer",
-                              COLORS[milestoneIndex % COLORS.length],
-                              "opacity-50 hover:opacity-70 transition-opacity",
-                              task.completed && "bg-green-500"
-                            )}
-                            style={calculatePosition(
-                              task.startDate,
-                              task.endDate
-                            )}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{task.title}</p>
-                          <p>開始: {format(task.startDate, "yyyy/MM/dd")}</p>
-                          <p>終了: {format(task.endDate, "yyyy/MM/dd")}</p>
-                          <p>状態: {task.completed ? "完了" : "未完了"}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                  {dateHeaders.map((date, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "border-r border-gray-200 dark:border-gray-700 h-full",
+                        date.getDay() === 0 || date.getDay() === 6
+                          ? "bg-gray-50 dark:bg-gray-600"
+                          : "dark:bg-gray-800"
+                      )}
+                    />
+                  ))}
                 </div>
-              ))}
+
+                {/* マイルストーンとタスクのバー */}
+                <div className="relative">
+                  {milestones.map((milestone, milestoneIndex) => (
+                    <React.Fragment key={milestone.id}>
+                      {/* マイルストーンバー */}
+                      <div className="h-[48px] flex items-center relative">
+                        <div
+                          className={`absolute h-8 mx-1 rounded ${milestone.color} opacity-90`}
+                          style={{
+                            ...getPositionAndWidth(
+                              milestone.startDate,
+                              milestone.endDate
+                            ),
+                            top: "10px",
+                          }}
+                        >
+                          <div className="absolute inset-0 flex items-center justify-center text-xs text-white dark:text-gray-800 font-medium">
+                            <span className="px-2 truncate max-w-full">
+                              {milestone.title}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* タスクバー */}
+                      {milestone.tasks.map((task) => (
+                        <div
+                          key={task.id}
+                          className="h-[48px] flex items-center relative"
+                        >
+                          <div
+                            className={`absolute h-8 mx-1 rounded ${milestone.color} opacity-75`}
+                            style={{
+                              ...getPositionAndWidth(
+                                task.startDate,
+                                task.endDate
+                              ),
+                              top: "10px",
+                            }}
+                          >
+                            <div className="absolute inset-0 flex items-center justify-center text-xs text-white dark:text-gray-800 font-medium">
+                              <span className="px-2 truncate max-w-full">
+                                {task.title}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </div>
