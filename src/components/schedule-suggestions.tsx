@@ -220,7 +220,7 @@ export function ScheduleSuggestions({
     // In a real application, you would save the schedule to your backend here
     // For now, we'll just navigate to the goal detail page with a mock ID
     const goalId = "goal-" + Date.now(); // This is a temporary way to generate an ID
-    router.push(`/projects/${goalId}`);
+    router.push(`/app/projects/${goalId}`);
   };
 
   const handleApplyToCalendar = () => {
