@@ -118,82 +118,68 @@ function StatusBadge({ status }: { status: Project["status"] }) {
 
 export function ProjectList() {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold tracking-tight">
-            あなたのプロジェクト
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            一歩ずつ前進しましょう。小さな進捗も大切です。
-          </p>
-        </div>
-        <Button size="sm" asChild>
-          <Link href="/projects/new">新しいプロジェクトを設定</Link>
-        </Button>
-      </div>
+    <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+      {data.map((goal) => (
+        <Card key={goal.id} className="relative overflow-hidden">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-start mb-3">
+              <div className="p-1.5 bg-slate-100 rounded-md dark:bg-slate-800">
+                <ProjectIcon icon={goal.icon} />
+              </div>
+              <StatusBadge status={goal.status} />
+            </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {data.map((goal) => (
-          <Card key={goal.id} className="relative overflow-hidden">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-3">
-                <div className="p-1.5 bg-slate-100 rounded-md dark:bg-slate-800">
-                  <ProjectIcon icon={goal.icon} />
+            <h3 className="font-semibold text-base mb-0.5">{goal.title}</h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              {goal.description}
+            </p>
+
+            <div className="space-y-2.5">
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span>進捗</span>
+                  <span className="font-medium">{goal.progress}%</span>
                 </div>
-                <StatusBadge status={goal.status} />
+                <Progress value={goal.progress} className="h-1.5" />
               </div>
 
-              <h3 className="font-semibold text-base mb-0.5">{goal.title}</h3>
-              <p className="text-xs text-muted-foreground mb-3">
-                {goal.description}
-              </p>
-
-              <div className="space-y-2.5">
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span>進捗</span>
-                    <span className="font-medium">{goal.progress}%</span>
-                  </div>
-                  <Progress value={goal.progress} className="h-1.5" />
+              <div className="flex justify-between items-baseline">
+                <div className="space-y-0.5">
+                  <span className="text-lg font-semibold">
+                    {goal.target.value}
+                    {goal.target.unit}
+                  </span>
+                  <span className="text-xs text-muted-foreground block">
+                    目標
+                  </span>
                 </div>
-
-                <div className="flex justify-between items-baseline">
-                  <div className="space-y-0.5">
-                    <span className="text-lg font-semibold">
-                      {goal.target.value}
-                      {goal.target.unit}
-                    </span>
-                    <span className="text-xs text-muted-foreground block">
-                      目標
-                    </span>
-                  </div>
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <Book className="h-3 w-3 mr-1" />
-                    期限:{" "}
-                    {new Date(goal.target.date).toLocaleDateString("ja-JP", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </div>
+                <div className="flex items-center text-xs text-muted-foreground">
+                  <Book className="h-3 w-3 mr-1" />
+                  期限:{" "}
+                  {new Date(goal.target.date).toLocaleDateString("ja-JP", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </div>
               </div>
-            </CardContent>
-            <CardFooter className="p-4 pt-0">
-              <Button
-                variant="default"
-                size="sm"
-                className="w-full"
-                asChild
-                endIcon={<ArrowRightIcon />}
-              >
-                <Link href={`/projects/${goal.id}`}>詳細</Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+            </div>
+          </CardContent>
+          <CardFooter className="p-2 border-t border-gray-200 dark:border-gray-700 flex items-center justify-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="w-full text-xs font-medium text-gray-700 dark:text-gray-400"
+              endIcon={
+                <ArrowRightIcon className="w-4 h-4 text-gray-700 dark:text-gray-400" />
+              }
+            >
+              <Link href={`/app/projects/${goal.id}`}>詳細を確認</Link>
+            </Button>
+          </CardFooter>
+        </Card>
+      ))}
     </div>
   );
 }

@@ -43,13 +43,13 @@ const COLORS = [
   "bg-indigo-400",
 ];
 
-export default function ProjectDetailPage() {
+export default function ProjectDetail() {
   const params = useParams();
   const [goal, setProject] = useState<Project | null>(null);
 
   useEffect(() => {
-    // In a real application, you would fetch the goal details from your backend here
-    // For now, we'll use mock data
+    // In a real application, fetch the project details from the backend
+    // For now, using mock data
     const mockProject: Project = {
       id: params.id as string,
       title: "3ヶ月で修士論文を完成させる",
@@ -148,7 +148,6 @@ export default function ProjectDetailPage() {
 
   const toggleTaskCompletion = (taskId: string) => {
     if (!goal) return;
-
     setProject({
       ...goal,
       milestones: goal.milestones.map((milestone) => ({
@@ -184,13 +183,7 @@ export default function ProjectDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <ProjectHeader
-        title={goal.title}
-        description={goal.description}
-        deadline={goal.deadline}
-        progress={calculateOverallProgress(goal.milestones)}
-      />
+    <>
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>マイルストーン進捗状況</CardTitle>
@@ -239,6 +232,6 @@ export default function ProjectDetailPage() {
           </CardContent>
         </Card>
       ))}
-    </div>
+    </>
   );
 }

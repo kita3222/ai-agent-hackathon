@@ -66,7 +66,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {startIcon || endIcon ? (
-          <span className="inline-flex items-center gap-2 w-full">
+          <span className="inline-flex items-center gap-2">
             {startIcon && (
               <span className="inline-flex items-center">{startIcon}</span>
             )}

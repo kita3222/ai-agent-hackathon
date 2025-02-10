@@ -100,7 +100,7 @@ export function GanttChart({
   };
 
   return (
-    <div className={`relative mb-8 mt-8 ${className || ""}`}>
+    <div className={`relative ${className || ""}`}>
       <div className="flex h-full">
         {/* 左側の固定カラム */}
         <div
