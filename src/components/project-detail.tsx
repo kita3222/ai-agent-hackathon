@@ -7,13 +7,18 @@ import { Progress } from "@/components/ui/progress";
 import { GanttChart } from "./gantt-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  AlertCircle,
+  Bot,
   CalendarIcon,
   CheckCircle2,
   Clock,
   ListTodo,
   Target,
+  Sparkles,
+  AlertTriangle,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const COLORS = [
@@ -24,6 +29,21 @@ const COLORS = [
   "bg-pink-500",
   "bg-indigo-500",
 ];
+
+type Suggestion = {
+  id: string;
+  type: "warning" | "info" | "improvement";
+  title: string;
+  description: string;
+  primaryAction?: {
+    label: string;
+    onClick: () => void;
+  };
+  secondaryAction?: {
+    label: string;
+    onClick: () => void;
+  };
+};
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -107,6 +127,47 @@ export default function ProjectDetail() {
     ],
   });
 
+  // AIの提案データ
+  const [suggestions] = useState<Suggestion[]>([
+    {
+      id: "1",
+      type: "warning",
+      title: "スケジュールの遅れ",
+      description:
+        "関連論文の収集のタスクが遅れています。スケジュールを再調整することをお勧めします。",
+      primaryAction: {
+        label: "再調整する",
+        onClick: () => console.log("スケジュール再調整"),
+      },
+      secondaryAction: {
+        label: "後で",
+        onClick: () => console.log("後で対応"),
+      },
+    },
+    {
+      id: "2",
+      type: "improvement",
+      title: "効率化の提案",
+      description:
+        "論文の要約と分析を並行して進めることで、作業時間を短縮できる可能性があります。",
+      primaryAction: {
+        label: "詳細を見る",
+        onClick: () => console.log("詳細を表示"),
+      },
+    },
+    {
+      id: "3",
+      type: "info",
+      title: "新しい関連論文",
+      description:
+        "あなたの研究テーマに関連する新しい論文が3件公開されました。",
+      primaryAction: {
+        label: "論文を確認",
+        onClick: () => console.log("論文を確認"),
+      },
+    },
+  ]);
+
   const toggleTaskCompletion = (milestoneId: string, taskId: string) => {
     setProjectData((prev) => ({
       ...prev,
@@ -132,67 +193,178 @@ export default function ProjectDetail() {
     }));
   };
 
+  const getSuggestionStyles = (type: Suggestion["type"]) => {
+    switch (type) {
+      case "warning":
+        return {
+          card: "border-yellow-200 dark:border-yellow-900 bg-yellow-50/50 dark:bg-yellow-900/20",
+          icon: "text-yellow-600 dark:text-yellow-500",
+          text: "text-yellow-800 dark:text-yellow-500",
+          description: "text-yellow-800 dark:text-yellow-400",
+          primaryButton:
+            "border-yellow-600/20 hover:border-yellow-600/30 hover:bg-yellow-100 dark:border-yellow-400/20 dark:hover:border-yellow-400/30 dark:hover:bg-yellow-900/40",
+          secondaryButton:
+            "text-yellow-800 hover:text-yellow-900 hover:bg-yellow-100 dark:text-yellow-400 dark:hover:text-yellow-300 dark:hover:bg-yellow-900/40",
+        };
+      case "improvement":
+        return {
+          card: "border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/20",
+          icon: "text-blue-600 dark:text-blue-500",
+          text: "text-blue-800 dark:text-blue-500",
+          description: "text-blue-800 dark:text-blue-400",
+          primaryButton:
+            "border-blue-600/20 hover:border-blue-600/30 hover:bg-blue-100 dark:border-blue-400/20 dark:hover:border-blue-400/30 dark:hover:bg-blue-900/40",
+          secondaryButton:
+            "text-blue-800 hover:text-blue-900 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/40",
+        };
+      case "info":
+        return {
+          card: "border-purple-200 dark:border-purple-900 bg-purple-50/50 dark:bg-purple-900/20",
+          icon: "text-purple-600 dark:text-purple-500",
+          text: "text-purple-800 dark:text-purple-500",
+          description: "text-purple-800 dark:text-purple-400",
+          primaryButton:
+            "border-purple-600/20 hover:border-purple-600/30 hover:bg-purple-100 dark:border-purple-400/20 dark:hover:border-purple-400/30 dark:hover:bg-purple-900/40",
+          secondaryButton:
+            "text-purple-800 hover:text-purple-900 hover:bg-purple-100 dark:text-purple-400 dark:hover:text-purple-300 dark:hover:bg-purple-900/40",
+        };
+    }
+  };
+
+  const getSuggestionIcon = (type: Suggestion["type"]) => {
+    switch (type) {
+      case "warning":
+        return <AlertTriangle className="h-5 w-5 flex-shrink-0" />;
+      case "improvement":
+        return <Sparkles className="h-5 w-5 flex-shrink-0" />;
+      case "info":
+        return <AlertCircle className="h-5 w-5 flex-shrink-0" />;
+    }
+  };
+
   return (
     <div className="space-y-8">
-      {/* マイルストーン進捗状況 */}
+      {/* AIからの提案 */}
       <div className="space-y-4">
-        <h4 className="flex items-center gap-2 text-lg font-semibold">
-          <Clock className="h-5 w-5 text-primary" />
-          マイルストーン進捗状況
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {projectData.milestones.map((milestone) => (
-            <Card key={milestone.id} className="h-full">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Bot className="h-5 w-5 text-primary" />
+          <h2 className="font-semibold">AIからの提案</h2>
+        </div>
+        <div className="grid gap-4">
+          {suggestions.map((suggestion) => {
+            const styles = getSuggestionStyles(suggestion.type);
+            return (
+              <Card key={suggestion.id} className={styles.card}>
+                <CardHeader className="pb-2">
                   <div className="flex items-center gap-2">
-                    <div
-                      className={`w-2 h-2 rounded-full ${milestone.color}`}
-                    />
-                    <CardTitle className="text-base font-medium">
-                      {milestone.title}
+                    <div className={styles.icon}>
+                      {getSuggestionIcon(suggestion.type)}
+                    </div>
+                    <CardTitle
+                      className={`text-base font-medium ${styles.text}`}
+                    >
+                      {suggestion.title}
                     </CardTitle>
                   </div>
-                </div>
-                <span className="text-sm text-muted-foreground">
-                  {format(milestone.startDate, "MM/dd")} -{" "}
-                  {format(milestone.endDate, "MM/dd")}
-                </span>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary" />
-                      <span>{milestone.progress}% 完了</span>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col gap-4">
+                    <p className={`text-sm ${styles.description}`}>
+                      {suggestion.description}
+                    </p>
+                    <div className="flex gap-2">
+                      {suggestion.primaryAction && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={suggestion.primaryAction.onClick}
+                          className={styles.primaryButton}
+                        >
+                          {suggestion.primaryAction.label}
+                        </Button>
+                      )}
+                      {suggestion.secondaryAction && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={suggestion.secondaryAction.onClick}
+                          className={styles.secondaryButton}
+                        >
+                          {suggestion.secondaryAction.label}
+                        </Button>
+                      )}
                     </div>
                   </div>
-                  <Progress value={milestone.progress} className="h-2" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
 
+      {/* マイルストーン進捗状況 */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-primary" />
+            <CardTitle>マイルストーン進捗状況</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {projectData.milestones.map((milestone) => (
+              <Card key={milestone.id} className="h-full">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-2 h-2 rounded-full ${milestone.color}`}
+                      />
+                      <CardTitle className="text-base font-medium">
+                        {milestone.title}
+                      </CardTitle>
+                    </div>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {format(milestone.startDate, "MM/dd")} -{" "}
+                    {format(milestone.endDate, "MM/dd")}
+                  </span>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                        <span>{milestone.progress}% 完了</span>
+                      </div>
+                    </div>
+                    <Progress value={milestone.progress} className="h-2" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* タスク一覧 */}
-      <div className="space-y-4">
-        <h4 className="flex items-center gap-2 text-lg font-semibold">
-          <ListTodo className="h-5 w-5 text-primary" />
-          タスク一覧
-        </h4>
-        <div className="grid grid-cols-1 gap-4">
-          {projectData.milestones.map((milestone) => (
-            <Card key={milestone.id}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <ListTodo className="h-5 w-5 text-primary" />
+            <CardTitle>タスク一覧</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-6">
+            {projectData.milestones.map((milestone) => (
+              <div key={milestone.id}>
+                <div className="flex items-center gap-2 mb-3">
                   <div className={`w-2 h-2 rounded-full ${milestone.color}`} />
-                  <CardTitle className="text-base font-medium">
+                  <h3 className="text-base font-medium">
                     {milestone.title}のタスク
-                  </CardTitle>
+                  </h3>
                 </div>
-              </CardHeader>
-              <CardContent>
                 <div className="grid gap-2">
                   {milestone.tasks.map((task) => (
                     <div
@@ -215,28 +387,28 @@ export default function ProjectDetail() {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ガントチャート */}
-      <div className="space-y-4">
-        <h4 className="flex items-center gap-2 text-lg font-semibold">
-          <Clock className="h-5 w-5 text-primary" />
-          ガントチャート
-        </h4>
-        <Card>
-          <CardContent className="p-6 overflow-x-auto">
-            <GanttChart
-              startDate={projectData.milestones[0].startDate}
-              endDate={new Date(projectData.deadline)}
-              milestones={projectData.milestones}
-            />
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-primary" />
+            <CardTitle>ガントチャート</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6 overflow-x-auto">
+          <GanttChart
+            startDate={projectData.milestones[0].startDate}
+            endDate={new Date(projectData.deadline)}
+            milestones={projectData.milestones}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }
