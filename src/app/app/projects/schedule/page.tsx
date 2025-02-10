@@ -1,4 +1,3 @@
-import SectionHeader from "@/components/layouts/section-header";
 import { ScheduleSuggestions } from "@/components/schedule-suggestions";
 
 export default function SchedulePage({
@@ -9,16 +8,14 @@ export default function SchedulePage({
   const tasks = JSON.parse(searchParams.tasks);
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-4">
-      <SectionHeader
-        title="スケジュール提案"
-        subtitle="目標達成に向けた具体的なスケジュールを提案します。マイルストーンとタスクの予定日を確認し、必要に応じて調整してください。"
-      />
-      <ScheduleSuggestions
-        goal={searchParams.goal}
-        deadline={searchParams.deadline}
-        tasks={tasks}
-      />
+    <div className="flex min-h-[80vh] flex-col items-center justify-center w-full py-8">
+      <div className="w-full max-w-5xl mx-auto px-4">
+        <ScheduleSuggestions
+          goal={searchParams.goal}
+          deadline={searchParams.deadline}
+          tasks={tasks}
+        />
+      </div>
     </div>
   );
 }

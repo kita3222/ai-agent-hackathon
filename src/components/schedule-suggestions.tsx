@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useMemo } from "react";
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +31,7 @@ import {
   type Milestone,
   COLORS,
 } from "@/components/gantt-chart";
+import { FlagIcon } from "lucide-react";
 
 type ScheduleSuggestionsProps = {
   goal: string;
@@ -59,19 +66,6 @@ function TimelineNode({
 
   return (
     <div className="relative flex items-center space-x-4">
-      <div className="flex flex-col items-center relative">
-        {!isFirst && (
-          <div className="absolute w-0.5 bg-gray-200 h-[4rem] -top-[4rem] left-1/2 -translate-x-1/2" />
-        )}
-        <div
-          className={`w-4 h-4 ${milestone.color} rounded-full flex items-center justify-center ring-4 ring-${milestone.color}/20 relative z-10`}
-        >
-          <div className="w-2 h-2rounded-full" />
-        </div>
-        {!isLast && (
-          <div className="absolute w-0.5 bg-gray-200 h-[4rem] top-4 left-1/2 -translate-x-1/2" />
-        )}
-      </div>
       <div className="flex-1">
         <div className="rounded-xl border shadow-sm p-4 hover:shadow-md transition-shadow relative">
           <div className="flex items-center justify-between mb-3">
@@ -239,49 +233,75 @@ export function ScheduleSuggestions({
   };
 
   return (
-    <Card>
-      <CardContent className="p-6 overflow-hidden">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold mb-1">{goal}</h2>
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>
-                目標期限: {format(parseISO(deadline), "yyyy年MM月dd日")}
-              </span>
+    <div className="w-full space-y-6">
+      <div className="flex flex-col items-center text-center">
+        <CalendarIcon className="h-10 w-10 text-primary mb-4" />
+        <h2 className="text-3xl font-bold tracking-tight">
+          スケジュールの設定
+        </h2>
+        <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">
+          目標達成に向けた具体的なスケジュールを提案します。
+          マイルストーンとタスクの予定日を確認し、必要に応じて調整してください。
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="w-full bg-gray-50 dark:bg-gray-900 lg:col-span-3">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <FlagIcon className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">設定した目標</CardTitle>
             </div>
-          </div>
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={handleApplyToCalendar}>
-              カレンダーに反映
-            </Button>
-            <Button onClick={handleSaveSchedule}>スケジュールを保存</Button>
-          </div>
-        </div>
+            <div className="space-y-1.5 mt-2">
+              <h3 className="text-lg font-semibold">{goal}</h3>
+              <CardDescription>
+                期限: {format(parseISO(deadline), "yyyy年MM月dd日")}
+              </CardDescription>
+            </div>
+          </CardHeader>
+        </Card>
 
-        <GanttChart
-          startDate={startDate}
-          endDate={endDate}
-          milestones={milestones}
-          className="overflow-hidden"
-        />
+        <Card className="w-full lg:col-span-3">
+          <CardHeader>
+            <CardTitle className="text-lg">ガントチャート</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <GanttChart
+              startDate={startDate}
+              endDate={endDate}
+              milestones={milestones}
+              className="overflow-hidden"
+            />
+          </CardContent>
+        </Card>
 
-        <div className="relative">
-          <div className="absolute inset-y-0 left-[1.55rem] w-0.5 bg-gray-100 -z-10" />
-          <div className="space-y-[4rem]">
-            {milestones.map((milestone, index) => (
-              <TimelineNode
-                key={milestone.id}
-                milestone={milestone}
-                isFirst={index === 0}
-                isLast={index === milestones.length - 1}
-                onDateChange={(taskIndex, isStart, date) =>
-                  handleDateChange(index, taskIndex, isStart, date)
-                }
-              />
-            ))}
-          </div>
+        <div className="space-y-6 lg:col-span-3">
+          {milestones.map((milestone, index) => (
+            <TimelineNode
+              key={milestone.id}
+              milestone={milestone}
+              isFirst={index === 0}
+              isLast={index === milestones.length - 1}
+              onDateChange={(taskIndex, isStart, date) =>
+                handleDateChange(index, taskIndex, isStart, date)
+              }
+            />
+          ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <div className="flex items-center gap-3 pt-4 justify-end">
+        <Button
+          onClick={() => router.push("/app/projects/suggest")}
+          variant="outline"
+          className="max-w-xs"
+        >
+          戻る
+        </Button>
+        <Button onClick={handleSaveSchedule} className="max-w-xs">
+          スケジュールを保存
+        </Button>
+      </div>
+    </div>
   );
 }
