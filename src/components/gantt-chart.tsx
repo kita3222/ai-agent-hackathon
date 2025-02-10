@@ -47,6 +47,7 @@ export function GanttChart({
   const DAYS_TO_ADD = 30;
   const INITIAL_PADDING_DAYS = 30;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const today = startOfDay(new Date());
 
   // 初期の表示範囲を設定（前後に余白を追加）
   const [visibleStartDate] = useState(() => {
@@ -97,6 +98,13 @@ export function GanttChart({
       left: `${startDiff * DAY_WIDTH}px`,
       width: `${Math.max(duration * DAY_WIDTH - 2, DAY_WIDTH)}px`,
     };
+  };
+
+  const getTodayPosition = () => {
+    const diff = Math.round(
+      (today.getTime() - visibleStartDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return `${diff * DAY_WIDTH}px`;
   };
 
   return (
@@ -350,6 +358,20 @@ export function GanttChart({
                     />
                   ))}
                 </div>
+
+                {/* 現在日付のマーカー */}
+                {today >= visibleStartDate && today <= visibleEndDate && (
+                  <div
+                    className="absolute top-0 bottom-0 w-px bg-red-500 z-10"
+                    style={{
+                      left: getTodayPosition(),
+                    }}
+                  >
+                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-1 bg-red-500 text-white text-xs rounded">
+                      Today
+                    </div>
+                  </div>
+                )}
 
                 {/* マイルストーンとタスクのバー */}
                 <div className="relative">

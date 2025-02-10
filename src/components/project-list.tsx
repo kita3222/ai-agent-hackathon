@@ -144,15 +144,6 @@ export function ProjectList() {
               </div>
 
               <div className="flex justify-between items-baseline">
-                <div className="space-y-0.5">
-                  <span className="text-lg font-semibold">
-                    {goal.target.value}
-                    {goal.target.unit}
-                  </span>
-                  <span className="text-xs text-muted-foreground block">
-                    目標
-                  </span>
-                </div>
                 <div className="flex items-center text-xs text-muted-foreground">
                   <Book className="h-3 w-3 mr-1" />
                   期限:{" "}

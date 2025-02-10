@@ -242,153 +242,159 @@ export default function ProjectDetail() {
     }
   };
 
+  // 全体の進捗率を計算
+  const calculateOverallProgress = () => {
+    const totalTasks = projectData.milestones.reduce(
+      (acc, milestone) => acc + milestone.tasks.length,
+      0
+    );
+    const completedTasks = projectData.milestones.reduce(
+      (acc, milestone) =>
+        acc + milestone.tasks.filter((task) => task.completed).length,
+      0
+    );
+    return Math.round((completedTasks / totalTasks) * 100);
+  };
+
+  const overallProgress = calculateOverallProgress();
+
   return (
     <div className="space-y-8">
       {/* AIからの提案 */}
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <Bot className="h-5 w-5 text-primary" />
-          <h2 className="font-semibold">AIからの提案</h2>
+          <Bot className="h-4 w-4 text-primary" />
+          <h2 className="text-sm font-medium">AIからの提案</h2>
         </div>
-        <div className="grid gap-4">
+        <div className="grid gap-2">
           {suggestions.map((suggestion) => {
             const styles = getSuggestionStyles(suggestion.type);
             return (
-              <Card key={suggestion.id} className={styles.card}>
-                <CardHeader className="pb-2">
+              <Card key={suggestion.id} className={`${styles.card} p-3`}>
+                <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <div className={styles.icon}>
                       {getSuggestionIcon(suggestion.type)}
                     </div>
-                    <CardTitle
-                      className={`text-base font-medium ${styles.text}`}
-                    >
+                    <div className={`text-sm font-medium ${styles.text}`}>
                       {suggestion.title}
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col gap-4">
-                    <p className={`text-sm ${styles.description}`}>
-                      {suggestion.description}
-                    </p>
-                    <div className="flex gap-2">
-                      {suggestion.primaryAction && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={suggestion.primaryAction.onClick}
-                          className={styles.primaryButton}
-                        >
-                          {suggestion.primaryAction.label}
-                        </Button>
-                      )}
-                      {suggestion.secondaryAction && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={suggestion.secondaryAction.onClick}
-                          className={styles.secondaryButton}
-                        >
-                          {suggestion.secondaryAction.label}
-                        </Button>
-                      )}
                     </div>
                   </div>
-                </CardContent>
+                  <p className={`text-xs ${styles.description}`}>
+                    {suggestion.description}
+                  </p>
+                  <div className="flex gap-2">
+                    {suggestion.primaryAction && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={suggestion.primaryAction.onClick}
+                        className={`h-7 text-xs ${styles.primaryButton}`}
+                      >
+                        {suggestion.primaryAction.label}
+                      </Button>
+                    )}
+                    {suggestion.secondaryAction && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={suggestion.secondaryAction.onClick}
+                        className={`h-7 text-xs ${styles.secondaryButton}`}
+                      >
+                        {suggestion.secondaryAction.label}
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </Card>
             );
           })}
         </div>
       </div>
 
-      {/* マイルストーン進捗状況 */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-primary" />
-            <CardTitle>マイルストーン進捗状況</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {projectData.milestones.map((milestone) => (
-              <Card key={milestone.id} className="h-full">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`w-2 h-2 rounded-full ${milestone.color}`}
-                      />
-                      <CardTitle className="text-base font-medium">
-                        {milestone.title}
-                      </CardTitle>
-                    </div>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {format(milestone.startDate, "MM/dd")} -{" "}
-                    {format(milestone.endDate, "MM/dd")}
-                  </span>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-primary" />
-                        <span>{milestone.progress}% 完了</span>
-                      </div>
-                    </div>
-                    <Progress value={milestone.progress} className="h-2" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* タスク一覧 */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <ListTodo className="h-5 w-5 text-primary" />
-            <CardTitle>タスク一覧</CardTitle>
+        <CardHeader className="pb-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ListTodo className="h-5 w-5 text-primary" />
+              <CardTitle>タスクの進捗状況</CardTitle>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>目標期限:</span>
+              <span className="font-medium">
+                {format(new Date(projectData.deadline), "yyyy年MM月dd日")}
+              </span>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-6">
-            {projectData.milestones.map((milestone) => (
-              <div key={milestone.id}>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={`w-2 h-2 rounded-full ${milestone.color}`} />
-                  <h3 className="text-base font-medium">
-                    {milestone.title}のタスク
-                  </h3>
+          <div className="space-y-6">
+            {/* 全体の進捗 */}
+            <div className="space-y-2 border-b pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-medium">全体の進捗</h3>
                 </div>
-                <div className="grid gap-2">
-                  {milestone.tasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Checkbox
-                          checked={task.completed}
-                          onCheckedChange={() =>
-                            toggleTaskCompletion(milestone.id, task.id)
-                          }
+                <span className="text-sm text-muted-foreground">
+                  {overallProgress}% 完了
+                </span>
+              </div>
+              <Progress value={overallProgress} className="h-2" />
+            </div>
+
+            {/* マイルストーンごとの進捗 */}
+            <div className="grid gap-6">
+              {projectData.milestones.map((milestone) => (
+                <div key={milestone.id} className="space-y-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`w-2 h-2 rounded-full ${milestone.color}`}
                         />
-                        <span className="text-sm">{task.title}</span>
+                        <h3 className="text-base font-medium">
+                          {milestone.title}
+                        </h3>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {format(task.startDate, "MM/dd")} -{" "}
-                        {format(task.endDate, "MM/dd")}
+                      <span className="text-sm text-muted-foreground">
+                        {format(milestone.startDate, "MM/dd")} -{" "}
+                        {format(milestone.endDate, "MM/dd")}
                       </span>
                     </div>
-                  ))}
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      <span>{milestone.progress}% 完了</span>
+                    </div>
+                    <Progress value={milestone.progress} className="h-1.5" />
+                  </div>
+
+                  <div className="grid gap-2 pl-4">
+                    {milestone.tasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Checkbox
+                            checked={task.completed}
+                            onCheckedChange={() =>
+                              toggleTaskCompletion(milestone.id, task.id)
+                            }
+                          />
+                          <span className="text-sm">{task.title}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {format(task.startDate, "MM/dd")} -{" "}
+                          {format(task.endDate, "MM/dd")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
