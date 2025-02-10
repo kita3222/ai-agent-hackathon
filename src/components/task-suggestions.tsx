@@ -178,24 +178,15 @@ export function TaskSuggestions({
   };
 
   return (
-    <div className="w-full space-y-6">
-      <div className="flex flex-col items-center text-center">
-        <CheckIcon className="h-10 w-10 text-primary mb-4" />
-        <h2 className="text-3xl font-bold tracking-tight">タスクの設定</h2>
-        <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
-          目標を達成するために必要なタスクを選択・編集してください。
-          タスクは自由に追加することもできます。
-        </p>
-      </div>
-
-      <Card className="w-full bg-gray-50 dark:bg-gray-900">
+    <div className="space-y-6">
+      <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
           <div className="flex items-center gap-2">
             <FlagIcon className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">設定した目標</CardTitle>
+            <CardTitle className="text-md">設定した目標</CardTitle>
           </div>
           <div className="space-y-1.5 mt-2">
-            <h3 className="text-lg font-semibold">{goal}</h3>
+            <h3 className="text-md font-semibold">{goal}</h3>
             <CardDescription>
               期限: {format(parseISO(deadline), "yyyy年MM月dd日")}
             </CardDescription>
@@ -203,67 +194,83 @@ export function TaskSuggestions({
         </CardHeader>
       </Card>
 
-      <div className="space-y-4 rounded-lg　shadow-sm">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={tasks.map((task) => task.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {tasks.map((task, index) => {
-              const isLast = index === tasks.length - 1;
-              return (
-                <SortableTask key={task.id} id={task.id}>
-                  <div className="space-y-1">
-                    <div className="rounded-lg border bg-card shadow-sm p-3 hover:shadow-md transition-shadow">
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                          <span className="font-medium">Step {index + 1}</span>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CheckIcon className="h-5 w-5 text-primary" />
+            <CardTitle className="text-lg">タスクの設定</CardTitle>
+          </div>
+          <CardDescription>
+            目標を達成するために必要なタスクを選択・編集してください。
+            タスクは自由に追加することもできます。
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="space-y-4">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={tasks.map((task) => task.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {tasks.map((task, index) => {
+                  const isLast = index === tasks.length - 1;
+                  return (
+                    <SortableTask key={task.id} id={task.id}>
+                      <div className="space-y-1">
+                        <div className="rounded-lg border bg-card shadow-sm p-3 hover:shadow-md transition-shadow">
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                              <span className="font-medium">
+                                Step {index + 1}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              <Checkbox
+                                id={task.id}
+                                checked={task.selected}
+                                onCheckedChange={() => toggleTask(task.id)}
+                                className="h-4 w-4"
+                              />
+                              <Input
+                                id={`task-title-${task.id}`}
+                                type="text"
+                                value={task.title}
+                                onChange={(e) =>
+                                  updateTaskTitle(task.id, e.target.value)
+                                }
+                                className="text-sm font-medium leading-none w-full shadow-none focus-visible:ring-0 px-2 py-1.5 bg-transparent"
+                              />
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center space-x-3">
-                          <Checkbox
-                            id={task.id}
-                            checked={task.selected}
-                            onCheckedChange={() => toggleTask(task.id)}
-                            className="h-4 w-4"
-                          />
-                          <Input
-                            id={`task-title-${task.id}`}
-                            type="text"
-                            value={task.title}
-                            onChange={(e) =>
-                              updateTaskTitle(task.id, e.target.value)
-                            }
-                            className="text-sm font-medium leading-none w-full shadow-none focus-visible:ring-0 px-2 py-1.5 bg-transparent"
-                          />
-                        </div>
+                        <TimelineMarker isLast={isLast} />
                       </div>
-                    </div>
-                    <TimelineMarker isLast={isLast} />
-                  </div>
-                </SortableTask>
-              );
-            })}
-          </SortableContext>
-        </DndContext>
+                    </SortableTask>
+                  );
+                })}
+              </SortableContext>
+            </DndContext>
 
-        <div className="flex space-x-2 items-center mt-4">
-          <Input
-            placeholder="新しいタスクを追加"
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-            className="bg-white shadow-sm"
-          />
-          <Button onClick={addTask} size="sm" className="shrink-0 px-4">
-            追加
-          </Button>
-        </div>
-      </div>
+            <div className="flex space-x-2 items-center">
+              <Input
+                placeholder="新しいタスクを追加"
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+                className="bg-white shadow-sm"
+              />
+              <Button onClick={addTask} size="sm" className="shrink-0 px-4">
+                追加
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="flex items-center gap-3 pt-4 justify-end">
+      <div className="flex items-center gap-3 justify-end">
         <Button
           onClick={() => router.push("/app/projects/new")}
           variant="outline"

@@ -234,26 +234,15 @@ export function ScheduleSuggestions({
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex flex-col items-center text-center">
-        <CalendarIcon className="h-10 w-10 text-primary mb-4" />
-        <h2 className="text-3xl font-bold tracking-tight">
-          スケジュールの設定
-        </h2>
-        <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">
-          目標達成に向けた具体的なスケジュールを提案します。
-          マイルストーンとタスクの予定日を確認し、必要に応じて調整してください。
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="w-full bg-gray-50 dark:bg-gray-900 lg:col-span-3">
           <CardHeader>
             <div className="flex items-center gap-2">
               <FlagIcon className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">設定した目標</CardTitle>
+              <CardTitle className="text-md">設定した目標</CardTitle>
             </div>
             <div className="space-y-1.5 mt-2">
-              <h3 className="text-lg font-semibold">{goal}</h3>
+              <h3 className="text-md font-semibold">{goal}</h3>
               <CardDescription>
                 期限: {format(parseISO(deadline), "yyyy年MM月dd日")}
               </CardDescription>
