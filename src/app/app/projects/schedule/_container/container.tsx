@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { addDays, parseISO } from "date-fns";
 import Presentational from "./presentational";
-import { COLORS } from "@/components/gantt-chart";
+import { COLORS } from "@/app/_components/gantt-chart";
 
 type Task = {
   id: string;

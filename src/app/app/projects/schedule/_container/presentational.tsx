@@ -3,16 +3,16 @@
 import React from "react";
 import { format, parseISO } from "date-fns";
 import { FlagIcon, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/app/_components/ui/button";
+import { Input } from "@/app/_components/ui/input";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { GanttChart, type Milestone } from "@/components/gantt-chart";
+} from "@/app/_components/ui/card";
+import { GanttChart, type Milestone } from "@/app/_components/gantt-chart";
 
 type Task = {
   id: string;
@@ -186,4 +186,4 @@ export default function Presentational({
       </div>
     </div>
   );
-} 
+}

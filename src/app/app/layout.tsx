@@ -1,6 +1,6 @@
 import React from "react";
-import Header from "@/components/layouts/header";
-import Main from "@/components/layouts/main";
+import Header from "@/app/_components/layouts/header";
+import Main from "@/app/_components/layouts/main";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (

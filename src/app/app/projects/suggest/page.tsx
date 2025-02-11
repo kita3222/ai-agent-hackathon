@@ -1,13 +1,13 @@
-import { TaskSuggestions } from "@/components/task-suggestions";
+import { TaskSuggestions } from "@/app/_components/task-suggestions";
 import { format, parseISO } from "date-fns";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card";
+} from "@/app/_components/ui/card";
 import { FlagIcon } from "lucide-react";
-import SectionHeader from "@/components/layouts/section-header";
+import SectionHeader from "@/app/_components/layouts/section-header";
 
 export default function SuggestTasksPage({
   searchParams,

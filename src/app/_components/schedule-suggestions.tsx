@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import React from "react";
 import {
   Card,
@@ -11,14 +11,27 @@ import {
 } from "@/app/_components/ui/card";
 import { Button } from "@/app/_components/ui/button";
 import { Input } from "@/app/_components/ui/input";
-import { addDays, format, parseISO } from "date-fns";
+import { Label } from "@/app/_components/ui/label";
+import { addDays, format, parseISO, startOfDay, endOfDay, add } from "date-fns";
 import { useRouter } from "next/navigation";
-import { FlagIcon } from "lucide-react";
+import { Avatar, AvatarImage } from "@/app/_components/ui/avatar";
+import { Badge } from "@/app/_components/ui/badge";
+import { ja } from "date-fns/locale/ja";
+import { Calendar } from "@/app/_components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/app/_components/ui/popover";
+import { cn } from "@/app/_lib/utils";
+import { CalendarIcon } from "lucide-react";
 import {
   GanttChart,
+  type Task,
   type Milestone,
   COLORS,
 } from "@/app/_components/gantt-chart";
+import { FlagIcon } from "lucide-react";
 
 type ScheduleSuggestionsProps = {
   goal: string;
@@ -41,6 +54,7 @@ function TimelineNode({
     date: Date
   ) => void;
 }) {
+  // マイルストーンの日付を計算
   const milestoneStartDate = milestone.tasks.reduce(
     (earliest, task) => (task.startDate < earliest ? task.startDate : earliest),
     milestone.tasks[0].startDate
@@ -104,7 +118,7 @@ function TimelineNode({
   );
 }
 
-export default function Presentational({
+export function ScheduleSuggestions({
   goal,
   deadline,
   tasks,
@@ -121,7 +135,7 @@ export default function Presentational({
       const totalDays = Math.ceil(
         (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
       );
-      const milestoneCount = Math.min(Math.ceil(tasks.length / 2), 3);
+      const milestoneCount = Math.min(Math.ceil(tasks.length / 2), 3); // Create up to 3 milestones
 
       return Array.from({ length: milestoneCount }, (_, index) => {
         const milestoneStartDate = addDays(
@@ -177,6 +191,7 @@ export default function Presentational({
       const milestone = { ...updatedMilestones[milestoneIndex] };
 
       if (taskIndex !== null) {
+        // Update task date
         const task = { ...milestone.tasks[taskIndex] };
         if (isStart) {
           task.startDate = newDate;
@@ -184,6 +199,8 @@ export default function Presentational({
           task.endDate = newDate;
         }
         milestone.tasks[taskIndex] = task;
+
+        // Update milestone dates based on tasks
         milestone.startDate = milestone.tasks.reduce(
           (earliest, t) => (t.startDate < earliest ? t.startDate : earliest),
           task.startDate
@@ -200,13 +217,18 @@ export default function Presentational({
   };
 
   const handleSaveSchedule = () => {
-    const goalId = "goal-" + Date.now();
+    // In a real application, you would save the schedule to your backend here
+    // For now, we'll just navigate to the goal detail page with a mock ID
+    const goalId = "goal-" + Date.now(); // This is a temporary way to generate an ID
     router.push(`/app/projects/${goalId}`);
   };
 
   const handleApplyToCalendar = () => {
+    // Here you would typically update your backend with the new milestone and task dates
+    // For this example, we'll just update the local state
     setStartDate(milestones[0].startDate);
     setEndDate(milestones[milestones.length - 1].endDate);
+    // You might want to show a success message here
     alert("カレンダーに反映されました");
   };
 
@@ -227,6 +249,7 @@ export default function Presentational({
             </div>
           </CardHeader>
         </Card>
+
         <Card className="w-full lg:col-span-3">
           <CardHeader>
             <CardTitle className="text-lg">ガントチャート</CardTitle>
@@ -240,6 +263,7 @@ export default function Presentational({
             />
           </CardContent>
         </Card>
+
         <div className="space-y-6 lg:col-span-3">
           {milestones.map((milestone, index) => (
             <TimelineNode
@@ -254,6 +278,7 @@ export default function Presentational({
           ))}
         </div>
       </div>
+
       <div className="flex items-center gap-3 pt-4 justify-end">
         <Button
           onClick={() => router.push("/app/projects/suggest")}
