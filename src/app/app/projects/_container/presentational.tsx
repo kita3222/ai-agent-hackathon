@@ -10,32 +10,23 @@ import {
   PlusIcon,
 } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import SectionHeader from "@/components/layouts/section-header";
-
-export type Project = {
-  id: string;
-  title: string;
-  description: string;
-  type: "personal" | "work" | "learning" | "health";
-  status: "not-started" | "in-progress" | "completed" | "struggling";
-  target: {
-    value: number;
-    unit: string;
-    date: string;
-  };
-  progress: number;
-  icon: "book" | "briefcase" | "graduation-cap" | "rocket" | JSX.Element;
-};
+import { Database } from "database.types";
 
 type PresentationalProps = {
-  projects: Project[];
+  projects?: Database["public"]["Tables"]["projects"]["Row"][];
 };
 
-function ProjectIcon({ icon }: { icon: Project["icon"] }) {
+const icons = ["book", "graduation-cap", "rocket", "briefcase"];
+
+function ProjectIcon({
+  icon,
+}: {
+  icon: "book" | "briefcase" | "graduation-cap" | "rocket";
+}) {
   if (React.isValidElement(icon)) {
     return icon;
   }
@@ -53,7 +44,11 @@ function ProjectIcon({ icon }: { icon: Project["icon"] }) {
   }
 }
 
-function StatusBadge({ status }: { status: Project["status"] }) {
+function StatusBadge({
+  status,
+}: {
+  status: Database["public"]["Tables"]["projects"]["Row"]["status"];
+}) {
   const variants = {
     "not-started": "bg-slate-100 text-slate-700",
     "in-progress": "bg-blue-50 text-blue-700",
@@ -71,9 +66,17 @@ function StatusBadge({ status }: { status: Project["status"] }) {
   return (
     <Badge
       variant="secondary"
-      className={`${variants[status]} border-0 text-xs`}
+      className={`${
+        variants[
+          status as "not-started" | "in-progress" | "completed" | "struggling"
+        ]
+      } border-0 text-xs`}
     >
-      {labels[status]}
+      {
+        labels[
+          status as "not-started" | "in-progress" | "completed" | "struggling"
+        ]
+      }
     </Badge>
   );
 }
@@ -89,67 +92,81 @@ export default function Presentational({ projects }: PresentationalProps) {
           </Button>
         }
       />
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {projects.map((goal) => (
-          <Card
-            key={goal.id}
-            className="relative overflow-hidden flex flex-col"
-          >
-            <CardContent className="p-4 flex-1 flex flex-col">
-              <div className="flex justify-between items-start h-10">
-                <div className="p-1.5 bg-slate-100 rounded-md dark:bg-slate-800">
-                  <ProjectIcon icon={goal.icon} />
-                </div>
-                <StatusBadge status={goal.status} />
-              </div>
-
-              <div className="flex flex-col flex-1 min-h-[120px]">
-                <h3 className="font-semibold text-base line-clamp-1">
-                  {goal.title}
-                </h3>
-                <p className="text-xs text-muted-foreground line-clamp-2 mb-auto">
-                  {goal.description}
-                </p>
-
-                <div className="space-y-2.5">
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span>進捗</span>
-                      <span className="font-medium">{goal.progress}%</span>
-                    </div>
-                    <Progress value={goal.progress} className="h-1.5" />
+      {!projects || projects.length === 0 ? (
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-center text-muted-foreground rounded-lg p-8">
+            <p className="text-lg font-medium">プロジェクトが存在しません</p>
+            <p className="text-sm mt-2">
+              新規作成ボタンからプロジェクトを作成してください
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {projects.map((project) => (
+            <Card
+              key={project.id}
+              className="relative overflow-hidden flex flex-col"
+            >
+              <CardContent className="p-4 flex-1 flex flex-col">
+                <div className="flex justify-between items-start h-10">
+                  <div className="p-1.5 bg-slate-100 rounded-md dark:bg-slate-800">
+                    <ProjectIcon
+                      icon={
+                        icons[Math.floor(Math.random() * icons.length)] as
+                          | "book"
+                          | "briefcase"
+                          | "graduation-cap"
+                          | "rocket"
+                      }
+                    />
                   </div>
+                  <StatusBadge status={project.status} />
+                </div>
 
-                  <div className="flex justify-between items-baseline">
+                <div className="flex flex-col flex-1 min-h-[120px]">
+                  <h3 className="font-semibold text-base line-clamp-1">
+                    {project.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground line-clamp-2 mb-auto">
+                    {project.description || "説明がありません"}
+                  </p>
+
+                  <div className="flex justify-between items-baseline mt-2">
                     <div className="flex items-center text-xs text-muted-foreground">
                       <Book className="h-3 w-3 mr-1" />
                       期限:{" "}
-                      {new Date(goal.target.date).toLocaleDateString("ja-JP", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
+                      {project.deadline
+                        ? new Date(project.deadline).toLocaleDateString(
+                            "ja-JP",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )
+                        : "未設定"}
                     </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-            <CardFooter className="p-2 border-t border-gray-200 dark:border-gray-700 flex items-center justify-center h-10">
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                className="w-full text-xs font-medium text-gray-700 dark:text-gray-400"
-                endIcon={
-                  <ArrowRightIcon className="w-4 h-4 text-gray-700 dark:text-gray-400" />
-                }
-              >
-                <Link href={`/app/projects/${goal.id}`}>詳細を確認</Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+              <CardFooter className="p-2 border-t border-gray-200 dark:border-gray-700 flex items-center justify-center h-10">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  asChild
+                  className="w-full text-xs font-medium text-gray-700 dark:text-gray-400"
+                  endIcon={
+                    <ArrowRightIcon className="w-4 h-4 text-gray-700 dark:text-gray-400" />
+                  }
+                >
+                  <Link href={`/app/projects/${project.id}`}>詳細を確認</Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

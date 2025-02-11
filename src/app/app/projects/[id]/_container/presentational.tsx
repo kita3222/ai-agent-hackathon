@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import {
   AlertTriangle,
@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GanttChart } from "@/components/gantt-chart";
+import { useToast } from "@/components/ui/use-toast";
 
 type Task = {
   id: string;
@@ -62,46 +63,49 @@ type PresentationalProps = {
   projectData: ProjectData;
   suggestions: Suggestion[];
   overallProgress: number;
-  toggleTaskCompletion: (milestoneId: string, taskId: string) => void;
+  toggleTaskCompletion: (
+    milestoneId: string,
+    taskId: string
+  ) => Promise<{ success?: boolean; error?: string }>;
 };
 
-const getSuggestionStyles = (type: Suggestion["type"]) => {
+function getSuggestionStyles(type: Suggestion["type"]) {
   switch (type) {
     case "warning":
       return {
-        card: "border-yellow-200 dark:border-yellow-900 bg-yellow-50/50 dark:bg-yellow-900/20",
-        icon: "text-yellow-600 dark:text-yellow-500",
-        text: "text-yellow-800 dark:text-yellow-500",
-        description: "text-yellow-800 dark:text-yellow-400",
+        card: "border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-950",
+        icon: "text-yellow-600 dark:text-yellow-400",
+        text: "text-yellow-800 dark:text-yellow-200",
+        description: "text-yellow-700 dark:text-yellow-300",
         primaryButton:
-          "border-yellow-600/20 hover:border-yellow-600/30 hover:bg-yellow-100 dark:border-yellow-400/20 dark:hover:border-yellow-400/30 dark:hover:bg-yellow-900/40",
+          "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300 dark:hover:bg-yellow-800",
         secondaryButton:
-          "text-yellow-800 hover:text-yellow-900 hover:bg-yellow-100 dark:text-yellow-400 dark:hover:text-yellow-300 dark:hover:bg-yellow-900/40",
-      };
-    case "improvement":
-      return {
-        card: "border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/20",
-        icon: "text-blue-600 dark:text-blue-500",
-        text: "text-blue-800 dark:text-blue-500",
-        description: "text-blue-800 dark:text-blue-400",
-        primaryButton:
-          "border-blue-600/20 hover:border-blue-600/30 hover:bg-blue-100 dark:border-blue-400/20 dark:hover:border-blue-400/30 dark:hover:bg-blue-900/40",
-        secondaryButton:
-          "text-blue-800 hover:text-blue-900 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/40",
+          "text-yellow-700 hover:bg-yellow-100 dark:text-yellow-300 dark:hover:bg-yellow-900",
       };
     case "info":
       return {
-        card: "border-purple-200 dark:border-purple-900 bg-purple-50/50 dark:bg-purple-900/20",
-        icon: "text-purple-600 dark:text-purple-500",
-        text: "text-purple-800 dark:text-purple-500",
-        description: "text-purple-800 dark:text-purple-400",
+        card: "border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950",
+        icon: "text-blue-600 dark:text-blue-400",
+        text: "text-blue-800 dark:text-blue-200",
+        description: "text-blue-700 dark:text-blue-300",
         primaryButton:
-          "border-purple-600/20 hover:border-purple-600/30 hover:bg-purple-100 dark:border-purple-400/20 dark:hover:border-purple-400/30 dark:hover:bg-purple-900/40",
+          "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800",
         secondaryButton:
-          "text-purple-800 hover:text-purple-900 hover:bg-purple-100 dark:text-purple-400 dark:hover:text-purple-300 dark:hover:bg-purple-900/40",
+          "text-blue-700 hover:bg-blue-100 dark:text-blue-300 dark:hover:bg-blue-900",
+      };
+    case "improvement":
+      return {
+        card: "border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950",
+        icon: "text-green-600 dark:text-green-400",
+        text: "text-green-800 dark:text-green-200",
+        description: "text-green-700 dark:text-green-300",
+        primaryButton:
+          "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800",
+        secondaryButton:
+          "text-green-700 hover:bg-green-100 dark:text-green-300 dark:hover:bg-green-900",
       };
   }
-};
+}
 
 const getSuggestionIcon = (type: Suggestion["type"]) => {
   switch (type) {
@@ -120,6 +124,26 @@ export default function Presentational({
   overallProgress,
   toggleTaskCompletion,
 }: PresentationalProps) {
+  const { toast } = useToast();
+  const [loadingTasks, setLoadingTasks] = useState<string[]>([]);
+
+  const handleToggleTask = async (milestoneId: string, taskId: string) => {
+    try {
+      setLoadingTasks((prev) => [...prev, taskId]);
+      const result = await toggleTaskCompletion(milestoneId, taskId);
+
+      if (result.error) {
+        toast({
+          title: "エラー",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setLoadingTasks((prev) => prev.filter((id) => id !== taskId));
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* AIからの提案 */}
@@ -244,8 +268,9 @@ export default function Presentational({
                           <Checkbox
                             checked={task.completed}
                             onCheckedChange={() =>
-                              toggleTaskCompletion(milestone.id, task.id)
+                              handleToggleTask(milestone.id, task.id)
                             }
+                            disabled={loadingTasks.includes(task.id)}
                           />
                           <span className="text-sm">{task.title}</span>
                         </div>

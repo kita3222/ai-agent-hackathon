@@ -3,6 +3,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import Presentational from "./presentational";
+import { toggleTaskCompletion as toggleTaskCompletionAction } from "@/app/app/projects/[id]/_actions/action";
 
 const COLORS = [
   "bg-blue-500",
@@ -164,15 +165,6 @@ function calculateOverallProgress(milestones: Milestone[]): number {
   return Math.round(totalProgress / milestones.length);
 }
 
-async function toggleTaskCompletion(
-  projectId: string,
-  milestoneId: string,
-  taskId: string
-) {
-  // TODO: APIを呼び出してタスクの完了状態を更新する実装
-  console.log("Toggle task completion:", { projectId, milestoneId, taskId });
-}
-
 type Props = {
   params: {
     id: string;
@@ -193,9 +185,10 @@ export default async function ProjectDetailContainer({ params }: Props) {
       projectData={projectData}
       suggestions={suggestions}
       overallProgress={overallProgress}
-      toggleTaskCompletion={(milestoneId: string, taskId: string) =>
-        toggleTaskCompletion(params.id, milestoneId, taskId)
-      }
+      toggleTaskCompletion={async (milestoneId: string, taskId: string) => {
+        "use server";
+        return toggleTaskCompletionAction(params.id, milestoneId, taskId);
+      }}
     />
   );
 }
