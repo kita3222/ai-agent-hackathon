@@ -1,4 +1,4 @@
-import SectionHeader from "@/app/_components/layouts/section-header";
+import SectionHeader from "@/components/layouts/section-header";
 import ScheduleContainer from "./_container/container";
 
 type Props = {

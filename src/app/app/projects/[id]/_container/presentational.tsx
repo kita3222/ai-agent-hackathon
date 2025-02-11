@@ -12,16 +12,11 @@ import {
   Clock,
   CheckCircle2,
 } from "lucide-react";
-import { Progress } from "@/app/_components/ui/progress";
-import { Button } from "@/app/_components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/app/_components/ui/card";
-import { Checkbox } from "@/app/_components/ui/checkbox";
-import { GanttChart } from "@/app/_components/gantt-chart";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { GanttChart } from "@/components/gantt-chart";
 
 type Task = {
   id: string;

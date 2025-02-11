@@ -1,11 +1,11 @@
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/app/_components/theme-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 import type React from "react";
-import { cn } from "@/app/_lib/utils";
+import { cn } from "@/lib/utils";
 
-import Header from "@/app/_components/layouts/header";
-import Main from "@/app/_components/layouts/main";
+import Header from "@/components/layouts/header";
+import Main from "@/components/layouts/main";
 
 const fontSans = FontSans({
   subsets: ["latin"],

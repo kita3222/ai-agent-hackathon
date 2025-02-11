@@ -1,4 +1,4 @@
-import SectionHeader from "@/app/_components/layouts/section-header";
+import SectionHeader from "@/components/layouts/section-header";
 import ProjectCreationContainer from "./_container/container";
 
 export default function NewProjectPage() {

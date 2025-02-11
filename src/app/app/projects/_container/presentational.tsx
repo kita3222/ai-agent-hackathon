@@ -9,12 +9,12 @@ import {
   Rocket,
   PlusIcon,
 } from "lucide-react";
-import { Card, CardContent, CardFooter } from "@/app/_components/ui/card";
-import { Progress } from "@/app/_components/ui/progress";
-import { Badge } from "@/app/_components/ui/badge";
-import { Button } from "@/app/_components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import SectionHeader from "@/app/_components/layouts/section-header";
+import SectionHeader from "@/components/layouts/section-header";
 
 export type Project = {
   id: string;
