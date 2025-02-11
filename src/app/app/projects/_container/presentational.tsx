@@ -91,43 +91,50 @@ export default function Presentational({ projects }: PresentationalProps) {
       />
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
         {projects.map((goal) => (
-          <Card key={goal.id} className="relative overflow-hidden">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-3">
+          <Card
+            key={goal.id}
+            className="relative overflow-hidden flex flex-col"
+          >
+            <CardContent className="p-4 flex-1 flex flex-col">
+              <div className="flex justify-between items-start h-10">
                 <div className="p-1.5 bg-slate-100 rounded-md dark:bg-slate-800">
                   <ProjectIcon icon={goal.icon} />
                 </div>
                 <StatusBadge status={goal.status} />
               </div>
 
-              <h3 className="font-semibold text-base mb-0.5">{goal.title}</h3>
-              <p className="text-xs text-muted-foreground mb-3">
-                {goal.description}
-              </p>
+              <div className="flex flex-col flex-1 min-h-[120px]">
+                <h3 className="font-semibold text-base line-clamp-1">
+                  {goal.title}
+                </h3>
+                <p className="text-xs text-muted-foreground line-clamp-2 mb-auto">
+                  {goal.description}
+                </p>
 
-              <div className="space-y-2.5">
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span>進捗</span>
-                    <span className="font-medium">{goal.progress}%</span>
+                <div className="space-y-2.5">
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span>進捗</span>
+                      <span className="font-medium">{goal.progress}%</span>
+                    </div>
+                    <Progress value={goal.progress} className="h-1.5" />
                   </div>
-                  <Progress value={goal.progress} className="h-1.5" />
-                </div>
 
-                <div className="flex justify-between items-baseline">
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <Book className="h-3 w-3 mr-1" />
-                    期限:{" "}
-                    {new Date(goal.target.date).toLocaleDateString("ja-JP", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                  <div className="flex justify-between items-baseline">
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <Book className="h-3 w-3 mr-1" />
+                      期限:{" "}
+                      {new Date(goal.target.date).toLocaleDateString("ja-JP", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="p-2 border-t border-gray-200 dark:border-gray-700 flex items-center justify-center">
+            <CardFooter className="p-2 border-t border-gray-200 dark:border-gray-700 flex items-center justify-center h-10">
               <Button
                 variant="ghost"
                 size="sm"
