@@ -1,11 +1,15 @@
 import SectionHeader from "@/components/layouts/section-header";
-import { ScheduleSuggestions } from "@/components/schedule-suggestions";
+import ScheduleContainer from "./_container/container";
 
-export default function SchedulePage({
-  searchParams,
-}: {
-  searchParams: { goal: string; deadline: string; tasks: string };
-}) {
+type Props = {
+  searchParams: {
+    goal: string;
+    deadline: string;
+    tasks: string;
+  };
+};
+
+export default function SchedulePage({ searchParams }: Props) {
   const tasks = JSON.parse(searchParams.tasks);
 
   return (
@@ -15,7 +19,7 @@ export default function SchedulePage({
         subtitle="目標達成に向けた具体的なスケジュールを提案します。
           マイルストーンとタスクの予定日を確認し、必要に応じて調整してください。"
       />
-      <ScheduleSuggestions
+      <ScheduleContainer
         goal={searchParams.goal}
         deadline={searchParams.deadline}
         tasks={tasks}

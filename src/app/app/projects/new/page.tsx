@@ -1,5 +1,5 @@
 import SectionHeader from "@/components/layouts/section-header";
-import { ProjectCreationForm } from "@/components/project-creation-form";
+import ProjectCreationContainer from "./_container/container";
 
 export default function NewProjectPage() {
   return (
@@ -8,7 +8,7 @@ export default function NewProjectPage() {
         title="新しい目標を設定"
         subtitle="目標の詳細を入力して、達成までの計画を立てましょう"
       />
-      <ProjectCreationForm />
+      <ProjectCreationContainer />
     </div>
   );
 }

@@ -1,11 +1,15 @@
-import ProjectDetail from "@/components/project-detail";
-import SectionHeader from "@/components/layouts/section-header";
+import ProjectDetailContainer from "./_container/container";
 
-export default function ProjectDetailPage() {
+type Props = {
+  params: {
+    id: string;
+  };
+};
+
+export default function ProjectDetailPage({ params }: Props) {
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-4">
-      <SectionHeader title="GOAL-1" subtitle="研究論文を完成させる" />
-      <ProjectDetail />
+    <div className="container mx-auto py-8">
+      <ProjectDetailContainer params={params} />
     </div>
   );
 }
