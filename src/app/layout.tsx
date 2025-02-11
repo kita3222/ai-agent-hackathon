@@ -1,6 +1,6 @@
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/layouts/theme-provider";
 import type React from "react";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";

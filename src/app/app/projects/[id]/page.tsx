@@ -1,5 +1,5 @@
 import ProjectDetailContainer from "./_container/container";
-
+import SectionHeader from "@/components/layouts/section-header";
 type Props = {
   params: {
     id: string;
@@ -8,7 +8,8 @@ type Props = {
 
 export default function ProjectDetailPage({ params }: Props) {
   return (
-    <div className="container mx-auto py-8">
+    <div className="max-w-4xl mx-auto flex flex-col gap-4">
+      <SectionHeader title="プロジェクト詳細" />
       <ProjectDetailContainer params={params} />
     </div>
   );

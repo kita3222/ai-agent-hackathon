@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { FlagIcon } from "lucide-react";
 import SectionHeader from "@/components/layouts/section-header";
+import TaskSuggestionsContainer from "./_container/container";
 
 export default function SuggestTasksPage({
   searchParams,
@@ -25,7 +26,7 @@ export default function SuggestTasksPage({
         title="タスクの設定"
         subtitle="目標を達成するために必要なタスクを選択・編集してください。"
       />
-      <TaskSuggestions
+      <TaskSuggestionsContainer
         goal={searchParams.goal}
         deadline={searchParams.deadline}
         description={searchParams.description}

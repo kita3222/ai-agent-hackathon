@@ -65,6 +65,55 @@ type PresentationalProps = {
   toggleTaskCompletion: (milestoneId: string, taskId: string) => void;
 };
 
+const getSuggestionStyles = (type: Suggestion["type"]) => {
+  switch (type) {
+    case "warning":
+      return {
+        card: "border-yellow-200 dark:border-yellow-900 bg-yellow-50/50 dark:bg-yellow-900/20",
+        icon: "text-yellow-600 dark:text-yellow-500",
+        text: "text-yellow-800 dark:text-yellow-500",
+        description: "text-yellow-800 dark:text-yellow-400",
+        primaryButton:
+          "border-yellow-600/20 hover:border-yellow-600/30 hover:bg-yellow-100 dark:border-yellow-400/20 dark:hover:border-yellow-400/30 dark:hover:bg-yellow-900/40",
+        secondaryButton:
+          "text-yellow-800 hover:text-yellow-900 hover:bg-yellow-100 dark:text-yellow-400 dark:hover:text-yellow-300 dark:hover:bg-yellow-900/40",
+      };
+    case "improvement":
+      return {
+        card: "border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/20",
+        icon: "text-blue-600 dark:text-blue-500",
+        text: "text-blue-800 dark:text-blue-500",
+        description: "text-blue-800 dark:text-blue-400",
+        primaryButton:
+          "border-blue-600/20 hover:border-blue-600/30 hover:bg-blue-100 dark:border-blue-400/20 dark:hover:border-blue-400/30 dark:hover:bg-blue-900/40",
+        secondaryButton:
+          "text-blue-800 hover:text-blue-900 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/40",
+      };
+    case "info":
+      return {
+        card: "border-purple-200 dark:border-purple-900 bg-purple-50/50 dark:bg-purple-900/20",
+        icon: "text-purple-600 dark:text-purple-500",
+        text: "text-purple-800 dark:text-purple-500",
+        description: "text-purple-800 dark:text-purple-400",
+        primaryButton:
+          "border-purple-600/20 hover:border-purple-600/30 hover:bg-purple-100 dark:border-purple-400/20 dark:hover:border-purple-400/30 dark:hover:bg-purple-900/40",
+        secondaryButton:
+          "text-purple-800 hover:text-purple-900 hover:bg-purple-100 dark:text-purple-400 dark:hover:text-purple-300 dark:hover:bg-purple-900/40",
+      };
+  }
+};
+
+const getSuggestionIcon = (type: Suggestion["type"]) => {
+  switch (type) {
+    case "warning":
+      return <AlertTriangle className="h-5 w-5 flex-shrink-0" />;
+    case "improvement":
+      return <Sparkles className="h-5 w-5 flex-shrink-0" />;
+    case "info":
+      return <AlertCircle className="h-5 w-5 flex-shrink-0" />;
+  }
+};
+
 export default function Presentational({
   projectData,
   suggestions,
@@ -77,46 +126,53 @@ export default function Presentational({
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <Bot className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-medium">AIからの提案</h2>
+          <h2 className="text-md font-medium">AIからの提案</h2>
         </div>
+        <div className="grid gap-2"></div>
         <div className="grid gap-2">
-          {suggestions.map((suggestion) => (
-            <Card key={suggestion.id} className="p-3 border rounded-md">
-              <div className="flex items-center gap-2 mb-1">
-                {suggestion.type === "warning" && (
-                  <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                )}
-                {suggestion.type === "improvement" && (
-                  <Sparkles className="h-5 w-5 text-blue-600" />
-                )}
-                {suggestion.type === "info" && (
-                  <AlertCircle className="h-5 w-5 text-purple-600" />
-                )}
-                <span className="font-medium">{suggestion.title}</span>
-              </div>
-              <p className="text-sm">{suggestion.description}</p>
-              <div className="flex gap-2 mt-2">
-                {suggestion.primaryAction && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={suggestion.primaryAction.onClick}
-                  >
-                    {suggestion.primaryAction.label}
-                  </Button>
-                )}
-                {suggestion.secondaryAction && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={suggestion.secondaryAction.onClick}
-                  >
-                    {suggestion.secondaryAction.label}
-                  </Button>
-                )}
-              </div>
-            </Card>
-          ))}
+          {suggestions.map((suggestion) => {
+            const styles = getSuggestionStyles(suggestion.type);
+            return (
+              <Card
+                key={suggestion.id}
+                className={`p-3 border rounded-md ${styles.card}`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <div className={styles.icon}>
+                    {getSuggestionIcon(suggestion.type)}
+                  </div>
+                  <span className={`font-medium ${styles.text}`}>
+                    {suggestion.title}
+                  </span>
+                </div>
+                <p className={`text-sm ${styles.description}`}>
+                  {suggestion.description}
+                </p>
+                <div className="flex gap-2 mt-2">
+                  {suggestion.primaryAction && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={suggestion.primaryAction.onClick}
+                      className={styles.primaryButton}
+                    >
+                      {suggestion.primaryAction.label}
+                    </Button>
+                  )}
+                  {suggestion.secondaryAction && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={suggestion.secondaryAction.onClick}
+                      className={styles.secondaryButton}
+                    >
+                      {suggestion.secondaryAction.label}
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       </div>
 

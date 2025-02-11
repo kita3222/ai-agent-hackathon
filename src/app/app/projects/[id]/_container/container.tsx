@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { notFound } from "next/navigation";
 import Presentational from "./presentational";
 
@@ -113,7 +113,9 @@ async function getProjectData(id: string): Promise<ProjectData> {
   };
 }
 
-async function generateSuggestions(projectData: ProjectData): Promise<Suggestion[]> {
+async function generateSuggestions(
+  projectData: ProjectData
+): Promise<Suggestion[]> {
   // TODO: AIによる提案生成の実装
   // 仮のデータを返す
   return [
@@ -121,7 +123,8 @@ async function generateSuggestions(projectData: ProjectData): Promise<Suggestion
       id: "1",
       type: "warning",
       title: "期限が迫っているタスクがあります",
-      description: "詳細設計のタスクが期限まで1週間を切っています。タスクの進捗を確認し、必要に応じて対策を検討してください。",
+      description:
+        "詳細設計のタスクが期限まで1週間を切っています。タスクの進捗を確認し、必要に応じて対策を検討してください。",
       primaryAction: {
         label: "タスクを確認",
         onClick: () => {
@@ -133,7 +136,8 @@ async function generateSuggestions(projectData: ProjectData): Promise<Suggestion
       id: "2",
       type: "improvement",
       title: "進捗報告の自動化を提案",
-      description: "定期的な進捗報告をSlackに自動投稿する設定を追加することで、コミュニケーションの効率化が図れます。",
+      description:
+        "定期的な進捗報告をSlackに自動投稿する設定を追加することで、コミュニケーションの効率化が図れます。",
       primaryAction: {
         label: "設定する",
         onClick: () => {
@@ -153,11 +157,18 @@ async function generateSuggestions(projectData: ProjectData): Promise<Suggestion
 function calculateOverallProgress(milestones: Milestone[]): number {
   if (milestones.length === 0) return 0;
 
-  const totalProgress = milestones.reduce((sum, milestone) => sum + milestone.progress, 0);
+  const totalProgress = milestones.reduce(
+    (sum, milestone) => sum + milestone.progress,
+    0
+  );
   return Math.round(totalProgress / milestones.length);
 }
 
-async function toggleTaskCompletion(projectId: string, milestoneId: string, taskId: string) {
+async function toggleTaskCompletion(
+  projectId: string,
+  milestoneId: string,
+  taskId: string
+) {
   // TODO: APIを呼び出してタスクの完了状態を更新する実装
   console.log("Toggle task completion:", { projectId, milestoneId, taskId });
 }

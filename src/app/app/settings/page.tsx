@@ -7,7 +7,10 @@ export default async function SettingsPage() {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
   if (error || !user) {
     redirect("/auth/sign-in");
@@ -15,10 +18,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <SectionHeader
-        title="設定"
-        subtitle="アカウントの設定を管理します"
-      />
+      <SectionHeader title="設定" subtitle="アカウントの設定を管理します" />
       <div className="space-y-6">
         <div className="space-y-2">
           <h2 className="text-lg font-medium">プロフィール</h2>
@@ -30,4 +30,4 @@ export default async function SettingsPage() {
       </div>
     </div>
   );
-} 
+}

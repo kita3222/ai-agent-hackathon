@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { UserAuthForm } from "../_components/user-auth-form";
-import Logo from "@/components/logo";
+import Logo from "@/components/ui/logo";
 
 export default function SignUpPage() {
   return (
