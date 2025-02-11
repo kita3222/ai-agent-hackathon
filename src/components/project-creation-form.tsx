@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/_components/ui/button";
-import { Input } from "@/_components/ui/input";
-import { Label } from "@/_components/ui/label";
-import { Textarea } from "@/_components/ui/textarea";
-import { Card, CardContent } from "@/_components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function ProjectCreationForm() {
   const router = useRouter();

@@ -2,15 +2,14 @@
 
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
-import { ja } from "date-fns/locale";
-import { Progress } from "@/_components/ui/progress";
+import { Progress } from "@/components/ui/progress";
 import { GanttChart } from "./gantt-chart";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/_components/ui/card";
+} from "@/components/ui/card";
 import {
   AlertCircle,
   Bot,
@@ -22,8 +21,8 @@ import {
   Sparkles,
   AlertTriangle,
 } from "lucide-react";
-import { Checkbox } from "@/_components/ui/checkbox";
-import { Button } from "@/_components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const COLORS = [
